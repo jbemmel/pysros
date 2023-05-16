@@ -120,6 +120,21 @@ def set_list_method_3(connection_object):
         # Configure the SR OS device
         connection_object.candidate.set(path, payload)
 
+def add_prefix_list(connection_object):
+    """Generate the configuration for a prefix list. This is an example with composite keys, 
+       which need to be set using an ordered tuple of their values"""
+    name = "TEST"
+    prefixes = ["1.2.3.0/24","4.5.6.0/24"]
+    
+    print("Adding prefix list...")
+    try:
+        connection_object.candidate.set(
+          f"/nokia-conf:configure/policy-options/prefix-list[name={name}]",
+          # Composite key ip-prefix + type, values in alphabetic order of field names
+          { "prefix": { (p, "exact") : {} for p in prefixes } }
+        )
+    except Exception as error:  # pylint: disable=broad-except
+        print("Failed to create", name, "Error:", error)
 
 def main():
     """Main function to demonstrate various options to configure YANG lists"""
@@ -131,7 +146,7 @@ def main():
     set_list_method_1(connection_object)
     set_list_method_2(connection_object)
     set_list_method_3(connection_object)
-
+    add_prefix_list(connection_object)
 
 # Run from here
 if __name__ == "__main__":
